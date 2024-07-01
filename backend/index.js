@@ -36,7 +36,7 @@ app.listen(PORT, () => {
 
 // =============== API Endpoints ======================
 
-// create account
+// Create Account
 app.post('/create-account', async (req, res) => {
     const { fullName, email, password } = req.body;
 
@@ -71,7 +71,7 @@ app.post('/create-account', async (req, res) => {
     });
 });
 
-// login
+// Login
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -104,7 +104,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Get user
+// Get User
 app.get('/user', authenticateToken, async (req, res) => {
     const { user } = req.user;
 
@@ -120,4 +120,71 @@ app.get('/user', authenticateToken, async (req, res) => {
     })
 })
 
+// Add Note
+app.post('/add-note', authenticateToken, async (req, res) => {
+    const { user } = req.user;
+    const { title, content, tags } = req.body;
+    if (!title || !content) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    try {
+        const note = new Note({
+            title,
+            content,
+            tags: tags || [],
+            userId: user._id
+        });
+        
+        await note.save();
+
+        return res.json({
+            error: false,
+            note,
+            message: 'Note added successfully'
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: true,
+            message: 'Internal Server Error'
+        })
+    }
+})
+
+// Edit Note
+app.put('/edit-note/:noteId', authenticateToken, async (req, res) => {
+    const { user } = req.user;
+    const { noteId } = req.params;
+    const { title, content, tags, isPinned } = req.body;
+
+    if (!title && !content && !tags) {
+        return res.status(400).json({ error: true, message: "No changes provided" })
+    }
+
+    try {
+        const note = await Note.findOne({ _id: noteId, userId: user._id });
+
+        if (!note) {
+            return res.status(404).json({ error: true, message: "Note not found" });
+        }
+
+        if (title) note.title = title;
+        if (content) note.content = content;
+        if (tags) note.tags = tags;
+        if (isPinned) note.isPinned = isPinned;
+
+        await note.save();
+
+        return res.json({
+            error: false,
+            note,
+            message: 'Note updated successfully'
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: true,
+            message: 'Internal Server Error'
+        });
+    }
+})
 export default app;

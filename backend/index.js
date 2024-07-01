@@ -104,4 +104,20 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Get user
+app.get('/user', authenticateToken, async (req, res) => {
+    const { user } = req.user;
+
+    const isUser = await User.findOne({ _id: user._id });
+
+    if (!isUser) {
+        return res.sendStatus(401);
+    }
+
+    return res.json({
+        user: isUser,
+        message: ""
+    })
+})
+
 export default app;

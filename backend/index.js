@@ -84,7 +84,7 @@ app.post('/login', async (req, res) => {
         return res.status(400).json({ message: 'User does not exist' });
     }
 
-    console.log("HELLO");
+    // console.log("HELLO");
     if (userInfo.email == email && userInfo.password == password) {
         const user = { user: userInfo };
 
@@ -108,11 +108,11 @@ app.post('/login', async (req, res) => {
 
 // Get User
 app.get('/get-user', authenticateToken, async (req, res) => {
-    console.log("NO ERROR AT AUTHTOKEN");
+    // console.log("NO ERROR AT AUTHTOKEN");
     const { user } = req.user;
-    console.log(user);
+    // console.log(user);
     const isUser = await User.findOne({ _id: user._id });
-    console.log("isUser:", isUser);
+    // console.log("isUser:", isUser);
     if (!isUser) {
         return res.sendStatus(401);
     }
@@ -257,10 +257,11 @@ app.delete("/delete-note/:noteId", authenticateToken, async (req, res) => {
 });
 
 // Search Notes
-app.get("/search-notes", authenticateToken, async (req, res) => {
+app.post("/search-notes", authenticateToken, async (req, res) => {
     const { user } = req.user;
-    const { query } = req.query;
-    console.log(query);
+    const { query } = req.body.params;
+    // console.log("req =>", req);
+    // console.log("query", query);
     if (!query) {
         return res
             .status(400)

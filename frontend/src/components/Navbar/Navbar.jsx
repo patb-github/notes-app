@@ -12,6 +12,7 @@ const Navbar = ({ userInfo, onSearchNote, handleClearSearch }) => {
   };
   const handleSearch = () => {
     if(searchQuery){
+      console.log("searchQuery:", searchQuery);
       onSearchNote(searchQuery)
     }
   };

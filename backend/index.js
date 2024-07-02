@@ -84,12 +84,14 @@ app.post('/login', async (req, res) => {
         return res.status(400).json({ message: 'User does not exist' });
     }
 
+    console.log("HELLO");
     if (userInfo.email == email && userInfo.password == password) {
         const user = { user: userInfo };
 
         const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: '3600m'
         });
+
         return res.json({
             error: false,
             email,
@@ -105,11 +107,12 @@ app.post('/login', async (req, res) => {
 });
 
 // Get User
-app.get('/user', authenticateToken, async (req, res) => {
+app.get('/get-user', authenticateToken, async (req, res) => {
+    console.log("NO ERROR AT AUTHTOKEN");
     const { user } = req.user;
-
+    console.log(user);
     const isUser = await User.findOne({ _id: user._id });
-
+    console.log("isUser:", isUser);
     if (!isUser) {
         return res.sendStatus(401);
     }
@@ -257,6 +260,7 @@ app.delete("/delete-note/:noteId", authenticateToken, async (req, res) => {
 app.get("/search-notes", authenticateToken, async (req, res) => {
     const { user } = req.user;
     const { query } = req.query;
+    console.log(query);
     if (!query) {
         return res
             .status(400)
